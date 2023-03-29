@@ -87,6 +87,11 @@ flutter:
       fonts:
         - asset: assets/fonts/pingfang-hk_regular.ttf
           weight: 400
+
+    - family: NotoSansTC-Regular
+      fonts:
+        - asset: assets/fonts/NotoSansTC-Regular.otf
+          weight: 400
         
   #   - family: Trajan Pro
   #     fonts:

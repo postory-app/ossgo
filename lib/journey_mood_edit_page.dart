@@ -10,12 +10,21 @@ class JourneyMoodEditPage extends StatefulWidget {
   final String? defaultText;
   const JourneyMoodEditPage({Key? key, this.defaultText}) : super(key: key);
 
+  //lib沒有這個字型
+  //  static TextStyle textStyle = GoogleFonts.getFont(
+  //   "Noto Sans TC ",
+  //   letterSpacing: 1,
+  //   height: 61.0.toFigmaHeight(50),
+  //   fontSize: 50,
+  //   fontWeight: FontWeight.w400,
+  // );
+
   static TextStyle textStyle = TextStyle(
     letterSpacing: 1,
     height: 61.0.toFigmaHeight(50),
     fontSize: 50,
     fontWeight: FontWeight.w400,
-    fontFamily: "Pingfang-hk_regular",
+    fontFamily: "NotoSansTC-Regular",
     fontFeatures: const [FontFeature.tabularFigures()],
   );
 
