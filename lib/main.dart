@@ -22,25 +22,25 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        colorScheme: const ColorScheme(
-          primary: Color(0xff008169),
-          secondary: Color(0xffffd24a),
-          brightness: Brightness.light,
-          background: Colors.white,
-          onPrimary: Colors.white,
-          onSecondary: Colors.white,
-          onBackground: Colors.black,
-          surface: Colors.white,
-          error: Colors.red,
-          onError: Colors.white,
-          onSurface: Color(0xffb3aa99),
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          colorScheme: const ColorScheme(
+            primary: Color(0xff008169),
+            secondary: Color(0xffffd24a),
+            brightness: Brightness.light,
+            background: Colors.white,
+            onPrimary: Colors.white,
+            onSecondary: Colors.white,
+            onBackground: Colors.black,
+            surface: Colors.white,
+            error: Colors.red,
+            onError: Colors.white,
+            onSurface: Color(0xffb3aa99),
+          ),
         ),
-      ),
-      home: MyHomePage()//JourneyMoodEditPage(), //MyHomePage(),
-    );
+        home: MyHomePage() //JourneyMoodEditPage(), //MyHomePage(),
+        );
   }
 }
 
@@ -133,7 +133,7 @@ class _MyHomePageState extends State<MyHomePage> {
       PageRouteBuilder(
         opaque: false,
         pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
-          return JourneyMoodEditPage();
+          return const JourneyMoodEditPage();
         },
       ),
     );

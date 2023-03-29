@@ -1,12 +1,14 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /*
 android打滿後，退出鍵盤再叫出鍵盤，完成按鈕位置是錯的,ios正常
 原因為輸入框若被keybaord遮擋，會導致整個視窗被往上抬下面會多出一段空間
 */
 class JourneyMoodEditPage extends StatefulWidget {
-  const JourneyMoodEditPage({Key? key}) : super(key: key);
+  final String? defaultText;
+  const JourneyMoodEditPage({Key? key, this.defaultText}) : super(key: key);
 
   static TextStyle textStyle = TextStyle(
     letterSpacing: 1,
@@ -46,24 +48,24 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
 
   @override
   void initState() {
-    // _textEditingCtr.text = _testText;
+    if (widget.defaultText != null) {
+      _textEditingCtr.text = widget.defaultText!;
+      _currentLines = getTextFieldLines(widget.defaultText!, JourneyMoodEditPage.textStyle, _textAreaMaxWidth);
+      _currentText = widget.defaultText!;
+    }
 
     _maxLines = _calcMaxLines();
     super.initState();
   }
 
   @override
+  void dispose() {
+    _textEditingCtr.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    //final viewInsets = EdgeInsets.fromWindowPadding(WidgetsBinding.instance.window.viewInsets,WidgetsBinding.instance.window.devicePixelRatio);
-
-    // if (MediaQuery.of(context).viewInsets.bottom != 0 && _keyboardHeight == null) {
-    //   _keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    // }
-
-    // if (MediaQuery.of(context).viewInsets.bottom == 0 && _keyboardHeight != null) {
-    //   _keyboardHeight = null;
-    // }
-
     return GestureDetector(
       onTap: () {
         // FocusScope.of(context).requestFocus(FocusNode());
@@ -120,8 +122,10 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
                                 height: _textAreaMaxHeight,
                                 color: Colors.grey.shade50,
                                 child: TextField(
+                                    //沒用，要搭配maxLength
+                                    // maxLengthEnforcement: MaxLengthEnforcement.truncateAfterCompositionEnds,
                                     scrollPhysics: const NeverScrollableScrollPhysics(),
-                                    maxLines: null,
+                                    maxLines: _maxLines,
                                     controller: _textEditingCtr,
                                     decoration: const InputDecoration(
                                       contentPadding: EdgeInsets.all(0),
@@ -131,15 +135,12 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
                                       counterText: "",
                                     ),
                                     onChanged: (String text) {
-                                      // _currentLines = getTextFieldLines();
-                                      // _currentLines = getTextFieldLines(text, _textStyle, _textAreaMaxWidth);
-                                      //不準，只要有按下enter就會是一行，縱使滿了一直按也是一直計算
-                                      // _currentLines = '\n'.allMatches(text).length + 1;
                                       int currentLines = getTextFieldLines(text, JourneyMoodEditPage.textStyle, _textAreaMaxWidth);
                                       if (currentLines > _maxLines) {
-                                        _textEditingCtr.text = _currentText;
+                                        final currentPosition = _textEditingCtr.selection.base.offset - 1;
+                                        _textEditingCtr.text = _getTruncatedText();
                                         _textEditingCtr.value = _textEditingCtr.value.copyWith(
-                                          selection: TextSelection(baseOffset: _currentText.length, extentOffset: _currentText.length),
+                                          selection: TextSelection(baseOffset: currentPosition, extentOffset: currentPosition),
                                         );
                                       } else {
                                         _currentText = text;
@@ -184,7 +185,9 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
                                       borderRadius: BorderRadius.circular(18.0),
                                     ))),
                                 onPressed: () {
+                                  FocusScope.of(context).requestFocus(FocusNode());
                                   Navigator.of(context).pop(_textEditingCtr.text);
+                                  // debugPrint("-----------------------text:${_textEditingCtr.text}");
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -207,6 +210,28 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
         );
       }),
     );
+  }
+
+  String _getTruncatedText() {
+    final text = _textEditingCtr.text;
+    TextSpan textSpan = TextSpan(text: text, style: JourneyMoodEditPage.textStyle);
+    TextPainter textPainter = TextPainter(text: textSpan, maxLines: _maxLines, textDirection: TextDirection.ltr);
+    var truncatedText = "";
+    for (var i = _textEditingCtr.text.length - 1; i >= 0; i--) {
+      truncatedText = _textEditingCtr.text.substring(0, i);
+      textPainter.text = TextSpan(
+        text: truncatedText,
+        style: JourneyMoodEditPage.textStyle,
+      );
+      textPainter.layout(maxWidth: _textAreaMaxWidth);
+      if (textPainter.didExceedMaxLines) {
+        continue;
+      } else {
+        break;
+      }
+    }
+    // debugPrint("truncatedText=$truncatedText");
+    return truncatedText;
   }
 
   /*
@@ -261,6 +286,7 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
   // }
 
   //檢查是否超過行數
+  /*
   bool textExceedMaxLines(String text, TextStyle textStyle, int maxLine, double maxWidth) {
     TextSpan textSpan = TextSpan(text: text, style: textStyle);
     TextPainter textPainter = TextPainter(text: textSpan, maxLines: maxLine, textDirection: TextDirection.ltr);
@@ -271,6 +297,7 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
     }
     return false;
   }
+  */
 
   int getTextFieldLines(String text, TextStyle style, double textFieldWidth) {
     final textSpan = TextSpan(text: text, style: style);

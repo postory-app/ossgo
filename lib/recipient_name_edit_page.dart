@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class RecipientNameEditPage extends StatefulWidget {
-  const RecipientNameEditPage({Key? key}) : super(key: key);
+  final String? defaultText;
+  const RecipientNameEditPage({Key? key, this.defaultText}) : super(key: key);
 
   @override
   State<RecipientNameEditPage> createState() => _RecipientNameEditPageState();
@@ -11,8 +12,18 @@ class _RecipientNameEditPageState extends State<RecipientNameEditPage> {
   final TextEditingController _textEditingCtr = TextEditingController();
 
   final int _maxLength = 8;
+  String? _currentText = "";
   double? _editAreaHeight;
   final TextStyle _titleTextStyle = const TextStyle(fontSize: 24, fontWeight: FontWeight.w400, color: Color(0xFFFFFEFA));
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.defaultText != null) {
+      _textEditingCtr.text = widget.defaultText!;
+      _currentText = widget.defaultText!;
+    }
+  }
 
   @override
   void dispose() {
@@ -69,7 +80,7 @@ class _RecipientNameEditPageState extends State<RecipientNameEditPage> {
                         child: TextField(
                           controller: _textEditingCtr,
                           maxLines: null,
-                          maxLength: _maxLength,
+                          // maxLength: _maxLength,
                           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
                           decoration: const InputDecoration(
                             contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -79,6 +90,15 @@ class _RecipientNameEditPageState extends State<RecipientNameEditPage> {
                             counterText: "",
                           ),
                           onChanged: (String text) {
+                            if (text.length > _maxLength) {
+                              final currentPosition = _textEditingCtr.selection.base.offset - 1;
+                              _textEditingCtr.text = text.substring(0, _currentText!.length);
+                              _textEditingCtr.value = _textEditingCtr.value.copyWith(
+                                selection: TextSelection(baseOffset: currentPosition, extentOffset: currentPosition),
+                              );
+                            } else {
+                              _currentText = text;
+                            }
                             setState(() {});
                           },
                         ),
