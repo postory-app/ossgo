@@ -47,6 +47,8 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
   final double _textAreaMaxHeight = 854; //1行是61,908
 
   double? _contentHeight;
+  bool _isOverflow = false;
+
   // double? _keyboardHeight;
 
   /*
@@ -146,14 +148,25 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
                                     onChanged: (String text) {
                                       int currentLines = getTextFieldLines(text, JourneyMoodEditPage.textStyle, _textAreaMaxWidth);
                                       if (currentLines > _maxLines) {
-                                        final currentPosition = _textEditingCtr.selection.base.offset - 1;
-                                        _textEditingCtr.text = _getTruncatedText();
+                                        int currentPosition = _textEditingCtr.selection.base.offset - 1;
+
+                                        _textEditingCtr.text = _currentText;
+
                                         _textEditingCtr.value = _textEditingCtr.value.copyWith(
                                           selection: TextSelection(baseOffset: currentPosition, extentOffset: currentPosition),
                                         );
+
+                                        _isOverflow = true;
+
+                                        // final currentPosition = _textEditingCtr.selection.base.offset - 1;
+                                        // _textEditingCtr.text = _getTruncatedText();
+                                        // _textEditingCtr.value = _textEditingCtr.value.copyWith(
+                                        //   selection: TextSelection(baseOffset: currentPosition, extentOffset: currentPosition),
+                                        // );
                                       } else {
                                         _currentText = text;
                                         _currentLines = currentLines;
+                                        _isOverflow = false;
                                       }
                                       setState(() {});
                                     },
@@ -178,9 +191,17 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
+                          if (_isOverflow)
+                            Text(
+                              "已達最大編輯範圍",
+                              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Colors.red.shade300),
+                            ),
+                          const SizedBox(
+                            width: 16,
+                          ),
                           Text(
                             "$_currentLines / $_maxLines 行",
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: Color(0xFFB3AA99)),
+                            style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: (_isOverflow) ? Colors.red.shade300 : const Color(0xFFB3AA99)),
                           ),
                           const SizedBox(
                             width: 16,
@@ -196,7 +217,7 @@ class _JourneyMoodPageEditState extends State<JourneyMoodEditPage> {
                                 onPressed: () {
                                   FocusScope.of(context).requestFocus(FocusNode());
                                   Navigator.of(context).pop(_textEditingCtr.text);
-                                  // debugPrint("-----------------------text:${_textEditingCtr.text}");
+                                  // debugPrint("text:${_textEditingCtr.text}");
                                 },
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
